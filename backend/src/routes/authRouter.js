@@ -1,7 +1,8 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { findUserByEmail } from '../models/user.js';
+import { findUserByEmail, findUserById } from '../models/user.js';
+import requireAuth from '../middleware/requireAuth.js';
 
 const router = express.Router();
 
@@ -36,6 +37,16 @@ router.post('/login', async (req, res) => {
   res.json({
     user: { id: user.id, name: user.name, email: user.email, role: user.role },
   });
+});
+
+router.get('/me', requireAuth, async (req, res) => {
+  const user = await findUserById(req.user.id);
+
+  if (!user) {
+    return res.status(401).json({ error: 'User no longer exists' });
+  }
+
+  res.json({ user });
 });
 
 export default router;
