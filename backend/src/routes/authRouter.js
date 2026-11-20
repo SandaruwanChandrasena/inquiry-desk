@@ -6,6 +6,13 @@ import requireAuth from '../middleware/requireAuth.js';
 
 const router = express.Router();
 
+// Login and logout must use the same options, or the browser will not clear the cookie
+const cookieOptions = {
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: process.env.NODE_ENV === 'production',
+};
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body ?? {};
 
@@ -27,16 +34,16 @@ router.post('/login', async (req, res) => {
     { expiresIn: process.env.JWT_EXPIRES_IN }
   );
 
-  res.cookie('token', token, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    maxAge: 8 * 60 * 60 * 1000,
-  });
+  res.cookie('token', token, { ...cookieOptions, maxAge: 8 * 60 * 60 * 1000 });
 
   res.json({
     user: { id: user.id, name: user.name, email: user.email, role: user.role },
   });
+});
+
+router.post('/logout', (req, res) => {
+  res.clearCookie('token', cookieOptions);
+  res.json({ message: 'Logged out' });
 });
 
 router.get('/me', requireAuth, async (req, res) => {
