@@ -2,6 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import pool from './db.js';
 import authRouter from './routes/authRouter.js';
+import inquiryRouter from './routes/inquiryRouter.js';
 
 const app = express();
 
@@ -15,5 +16,6 @@ app.get('/api/health', async (req, res) => {
 });
 
 app.use('/api/auth', authRouter);
+app.use('/api/inquiries', inquiryRouter);
 
 export default app;
