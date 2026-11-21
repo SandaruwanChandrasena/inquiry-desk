@@ -1,13 +1,18 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { api } from '../api/client.js'
+import { Navigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext.jsx'
 
 function LoginPage() {
-  const navigate = useNavigate()
+  const { user, loading: authLoading, login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  if (authLoading) return <p>Loading...</p>
+
+  // Already signed in (or just signed in): go to the home page
+  if (user) return <Navigate to="/" replace />
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -15,8 +20,7 @@ function LoginPage() {
     setLoading(true)
 
     try {
-      await api('/auth/login', { method: 'POST', body: { email, password } })
-      navigate('/')
+      await login(email, password)
     } catch (err) {
       setError(err.message)
     } finally {

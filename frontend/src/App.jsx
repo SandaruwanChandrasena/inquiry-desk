@@ -1,36 +1,11 @@
-import { useEffect, useState } from 'react'
-import { BrowserRouter, Routes, Route, Link, useNavigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider, useAuth } from './context/AuthContext.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
 import LoginPage from './pages/LoginPage.jsx'
-import { api } from './api/client.js'
 
-// Temporary home page: proves the login cookie works. The inquiry list replaces it next step.
+// Temporary home page. The inquiry list replaces it in the next step.
 function HomePage() {
-  const navigate = useNavigate()
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    api('/auth/me')
-      .then((data) => setUser(data.user))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false))
-  }, [])
-
-  async function handleSignOut() {
-    await api('/auth/logout', { method: 'POST' })
-    navigate('/login')
-  }
-
-  if (loading) return <p>Loading...</p>
-
-  if (!user) {
-    return (
-      <main>
-        <p>You are not signed in.</p>
-        <Link to="/login">Go to sign in</Link>
-      </main>
-    )
-  }
+  const { user, logout } = useAuth()
 
   return (
     <main>
@@ -38,7 +13,7 @@ function HomePage() {
       <p>
         Signed in as {user.name} ({user.role})
       </p>
-      <button onClick={handleSignOut}>Sign out</button>
+      <button onClick={logout}>Sign out</button>
     </main>
   )
 }
@@ -46,10 +21,19 @@ function HomePage() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <HomePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/login" element={<LoginPage />} />
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   )
 }
