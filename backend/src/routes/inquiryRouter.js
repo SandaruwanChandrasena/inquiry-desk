@@ -5,12 +5,15 @@ import {
   findOpenDuplicate,
   listInquiries,
   findInquiryById,
+  updateStatus,
 } from '../models/inquiry.js';
 import {
   createInquirySchema,
   listQuerySchema,
   idParamSchema,
+  updateStatusSchema,
 } from '../validation/inquirySchemas.js';
+import { canMove } from '../utils/statusRules.js';
 
 const router = express.Router();
 
@@ -83,6 +86,54 @@ router.post('/', async (req, res) => {
 
   const inquiry = await createInquiry(result.data, req.user.id);
   res.status(201).json({ inquiry });
+});
+
+router.patch('/:id/status', async (req, res) => {
+  const params = idParamSchema.safeParse(req.params);
+
+  if (!params.success) {
+    return res.status(400).json({ error: params.error.issues[0].message });
+  }
+
+  const body = updateStatusSchema.safeParse(req.body ?? {});
+
+  if (!body.success) {
+    return res.status(400).json({
+      error: 'Please fix the highlighted fields',
+      fields: fieldErrors(body.error),
+    });
+  }
+
+  const { id } = params.data;
+  const { status, version } = body.data;
+
+  const inquiry = await findInquiryById(id, req.user);
+
+  if (!inquiry) {
+    return res.status(404).json({ error: 'Inquiry not found' });
+  }
+
+  const staleMessage = 'This inquiry was changed by someone else. Please refresh.';
+
+  if (inquiry.version !== version) {
+    return res.status(409).json({ error: staleMessage });
+  }
+
+  if (!canMove(inquiry.status, status)) {
+    return res.status(422).json({
+      error: `Cannot change status from ${inquiry.status} to ${status}`,
+    });
+  }
+
+  // version is checked again inside the UPDATE, in case someone saved just now
+  const updated = await updateStatus(id, status, version, req.user.id);
+
+  if (!updated) {
+    return res.status(409).json({ error: staleMessage });
+  }
+
+  const fresh = await findInquiryById(id, req.user);
+  res.json({ inquiry: fresh });
 });
 
 export default router;

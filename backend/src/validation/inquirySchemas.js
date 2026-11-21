@@ -52,3 +52,13 @@ export const idParamSchema = z.object({
     .positive('Inquiry id must be a positive number')
     .max(2147483647, 'Inquiry id is too large'),
 });
+
+// version = the version the user saw when they loaded the inquiry
+export const updateStatusSchema = z.object({
+  status: z.enum(STATUSES, 'Status must be new, in_progress or resolved'),
+  version: z
+    .number('Version must be a number')
+    .int('Version must be a whole number')
+    .positive('Version must be a positive number')
+    .max(2147483647, 'Version is too large'),
+});

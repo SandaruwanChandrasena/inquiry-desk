@@ -72,3 +72,15 @@ export async function findInquiryById(id, user) {
   );
   return result.rows[0];
 }
+
+// Only updates if nobody changed the row since the user loaded it
+export async function updateStatus(id, status, version, userId) {
+  const result = await pool.query(
+    `UPDATE inquiries
+     SET status = $2, version = version + 1, updated_by = $4, updated_at = NOW()
+     WHERE id = $1 AND version = $3
+     RETURNING id`,
+    [id, status, version, userId]
+  );
+  return result.rows[0];
+}
