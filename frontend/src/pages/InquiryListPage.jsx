@@ -3,8 +3,6 @@ import { api } from '../api/client.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 
-const cell = { textAlign: 'left', padding: '8px 12px', borderBottom: '1px solid #ddd' }
-
 const STATUS_OPTIONS = [
   { value: '', label: 'All statuses' },
   { value: 'new', label: 'New' },
@@ -17,7 +15,6 @@ function InquiryListPage() {
   const [inquiries, setInquiries] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-
   const [reloadCount, setReloadCount] = useState(0)
   const [status, setStatus] = useState('')
   const [search, setSearch] = useState('')
@@ -78,86 +75,113 @@ function InquiryListPage() {
   const hasFilters = status !== '' || search !== ''
 
   return (
-    <main style={{ maxWidth: 960, margin: '0 auto', padding: 16 }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1>Inquiry Desk</h1>
-        <div>
-          {user.name} ({user.role}) <button onClick={logout}>Sign out</button>
+    <>
+      <header className="border-b border-stone-200 bg-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+          <h1 className="text-lg font-bold text-brand-700">Inquiry Desk</h1>
+          <div className="flex items-center gap-3 text-sm text-stone-600">
+            <span>
+              {user.name} <span className="text-stone-400">({user.role})</span>
+            </span>
+            <button className="btn-secondary" onClick={logout}>
+              Sign out
+            </button>
+          </div>
         </div>
       </header>
 
-      <h2>{user.role === 'admin' ? 'All inquiries' : 'My inquiries'}</h2>
+      <main className="mx-auto max-w-5xl px-4 py-6">
+        <h2 className="mb-4 text-xl font-semibold">
+          {user.role === 'admin' ? 'All inquiries' : 'My inquiries'}
+        </h2>
 
-      <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-        <select
-          aria-label="Filter by status"
-          value={status}
-          onChange={(e) => applyFilters(e.target.value, search)}
-        >
-          {STATUS_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="search"
-          aria-label="Search by customer or subject"
-          placeholder="Search customer or subject"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          maxLength={100}
-        />
-
-        <button type="submit">Search</button>
-        <button type="button" onClick={handleClear} disabled={!hasFilters && searchInput === ''}>
-          Clear
-        </button>
-      </form>
-
-      {loading && <p>Loading inquiries...</p>}
-
-      {!loading && error && (
-        <div role="alert">
-          <p style={{ color: 'crimson' }}>Could not load inquiries: {error}</p>
-          <button onClick={handleRetry}>Try again</button>
-        </div>
-      )}
-
-      {!loading && !error && inquiries.length === 0 && (
-        <p>{hasFilters ? 'No inquiries match your filters.' : 'No inquiries yet.'}</p>
-      )}
-
-      {!loading && !error && inquiries.length > 0 && (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={cell}>Customer</th>
-              <th style={cell}>Subject</th>
-              <th style={cell}>Status</th>
-              <th style={cell}>Last updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            {inquiries.map((inquiry) => (
-              <tr key={inquiry.id}>
-                <td style={cell}>{inquiry.customer_name}</td>
-                <td style={cell}>{inquiry.subject}</td>
-                <td style={cell}>
-                  <StatusBadge status={inquiry.status} />
-                </td>
-                <td style={cell}>
-                  {inquiry.updated_by_name}
-                  <br />
-                  <small>{new Date(inquiry.updated_at).toLocaleString()}</small>
-                </td>
-              </tr>
+        <form onSubmit={handleSearch} className="mb-4 flex flex-wrap gap-2">
+          <select
+            aria-label="Filter by status"
+            className="input w-auto"
+            value={status}
+            onChange={(e) => applyFilters(e.target.value, search)}
+          >
+            {STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
             ))}
-          </tbody>
-        </table>
-      )}
-    </main>
+          </select>
+
+          <input
+            type="search"
+            aria-label="Search by customer or subject"
+            placeholder="Search customer or subject"
+            className="input min-w-48 flex-1"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            maxLength={100}
+          />
+
+          <button type="submit" className="btn-primary">
+            Search
+          </button>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={handleClear}
+            disabled={!hasFilters && searchInput === ''}
+          >
+            Clear
+          </button>
+        </form>
+
+        {loading && <p className="text-stone-500">Loading inquiries...</p>}
+
+        {!loading && error && (
+          <div role="alert" className="alert-error flex items-center justify-between gap-4">
+            <span>Could not load inquiries: {error}</span>
+            <button className="btn-secondary" onClick={handleRetry}>
+              Try again
+            </button>
+          </div>
+        )}
+
+        {!loading && !error && inquiries.length === 0 && (
+          <div className="card text-center text-stone-500">
+            {hasFilters ? 'No inquiries match your filters.' : 'No inquiries yet.'}
+          </div>
+        )}
+
+        {!loading && !error && inquiries.length > 0 && (
+          <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white shadow-sm">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
+                <tr>
+                  <th className="px-4 py-3">Customer</th>
+                  <th className="px-4 py-3">Subject</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Last updated</th>
+                </tr>
+              </thead>
+              <tbody>
+                {inquiries.map((inquiry) => (
+                  <tr key={inquiry.id} className="border-t border-stone-100 hover:bg-stone-50">
+                    <td className="px-4 py-3 font-medium">{inquiry.customer_name}</td>
+                    <td className="px-4 py-3">{inquiry.subject}</td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={inquiry.status} />
+                    </td>
+                    <td className="px-4 py-3 text-stone-600">
+                      {inquiry.updated_by_name}
+                      <div className="text-xs text-stone-400">
+                        {new Date(inquiry.updated_at).toLocaleString()}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </main>
+    </>
   )
 }
 

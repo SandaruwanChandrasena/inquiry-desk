@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth()
 
-  if (loading) return <p>Loading...</p>
+  if (loading) return <p className="p-8 text-center text-stone-500">Loading...</p>
 
   if (!user) return <Navigate to="/login" replace />
 

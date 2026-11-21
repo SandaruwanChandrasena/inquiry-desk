@@ -1,27 +1,18 @@
 const STATUS_STYLES = {
-  new: { label: 'New', color: '#1d4ed8', background: '#dbeafe' },
-  in_progress: { label: 'In Progress', color: '#92400e', background: '#fef3c7' },
-  resolved: { label: 'Resolved', color: '#166534', background: '#dcfce7' },
+  new: { label: 'New', className: 'bg-blue-100 text-blue-800' },
+  in_progress: { label: 'In Progress', className: 'bg-amber-100 text-amber-800' },
+  resolved: { label: 'Resolved', className: 'bg-green-100 text-green-800' },
 }
 
 function StatusBadge({ status }) {
-  const { label, color, background } = STATUS_STYLES[status] ?? {
+  const { label, className } = STATUS_STYLES[status] ?? {
     label: status,
-    color: '#374151',
-    background: '#e5e7eb',
+    className: 'bg-stone-200 text-stone-700',
   }
 
   return (
     <span
-      style={{
-        color,
-        background,
-        padding: '2px 10px',
-        borderRadius: 999,
-        fontSize: '0.85em',
-        fontWeight: 600,
-        whiteSpace: 'nowrap',
-      }}
+      className={`inline-block whitespace-nowrap rounded-full px-2.5 py-0.5 text-xs font-semibold ${className}`}
     >
       {label}
     </span>

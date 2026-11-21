@@ -28,45 +28,53 @@ function LoginPage() {
   }
 
   return (
-    <main>
-      <h1>Inquiry Desk</h1>
-      <h2>Sign in</h2>
+    <main className="flex min-h-screen items-center justify-center px-4">
+      <div className="card w-full max-w-sm">
+        <h1 className="text-2xl font-bold text-brand-700">Inquiry Desk</h1>
+        <p className="mt-1 mb-6 text-sm text-stone-500">Sign in to continue</p>
 
-      <form onSubmit={handleSubmit}>
-        <p>
-          <label>
-            Email
-            <br />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="label">
+              Email
+            </label>
             <input
+              id="email"
               type="email"
+              className="input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="username"
               required
             />
-          </label>
-        </p>
+          </div>
 
-        <p>
-          <label>
-            Password
-            <br />
+          <div>
+            <label htmlFor="password" className="label">
+              Password
+            </label>
             <input
+              id="password"
               type="password"
+              className="input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               required
             />
-          </label>
-        </p>
+          </div>
 
-        {error && <p role="alert" style={{ color: 'crimson' }}>{error}</p>}
+          {error && (
+            <p role="alert" className="alert-error">
+              {error}
+            </p>
+          )}
 
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Signing in...' : 'Sign in'}
-        </button>
-      </form>
+          <button type="submit" className="btn-primary w-full" disabled={submitting}>
+            {submitting ? 'Signing in...' : 'Sign in'}
+          </button>
+        </form>
+      </div>
     </main>
   )
 }
