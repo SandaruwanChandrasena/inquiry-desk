@@ -1,7 +1,7 @@
 import express from 'express';
 import requireAuth from '../middleware/requireAuth.js';
-import { createInquiry, findOpenDuplicate } from '../models/inquiry.js';
-import { createInquirySchema } from '../validation/inquirySchemas.js';
+import { createInquiry, findOpenDuplicate, listInquiries } from '../models/inquiry.js';
+import { createInquirySchema, listQuerySchema } from '../validation/inquirySchemas.js';
 
 const router = express.Router();
 
@@ -17,6 +17,25 @@ function fieldErrors(zodError) {
   }
   return fields;
 }
+
+router.get('/', async (req, res) => {
+  const result = listQuerySchema.safeParse(req.query);
+
+  if (!result.success) {
+    return res.status(400).json({
+      error: 'Invalid filter',
+      fields: fieldErrors(result.error),
+    });
+  }
+
+  const inquiries = await listInquiries({
+    userId: req.user.id,
+    role: req.user.role,
+    ...result.data,
+  });
+
+  res.json({ inquiries });
+});
 
 router.post('/', async (req, res) => {
   const result = createInquirySchema.safeParse(req.body ?? {});

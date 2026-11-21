@@ -1,11 +1,17 @@
 import { z } from 'zod';
 
+export const STATUSES = ['new', 'in_progress', 'resolved'];
+
 // Trim text, and turn "" or a missing value into null
 const blankToNull = (value) => {
   if (value === undefined) return null;
   if (typeof value === 'string') return value.trim() || null;
   return value;
 };
+
+// Same idea for query strings: "" means "no filter"
+const blankToUndefined = (value) =>
+  typeof value === 'string' && value.trim() === '' ? undefined : value;
 
 const requiredText = (label, max) =>
   z
@@ -26,3 +32,14 @@ export const createInquirySchema = z
     message: 'Give an email or a phone number',
     path: ['contact'],
   });
+
+export const listQuerySchema = z.object({
+  status: z.preprocess(
+    blankToUndefined,
+    z.enum(STATUSES, 'Status must be new, in_progress or resolved').optional()
+  ),
+  search: z.preprocess(
+    blankToUndefined,
+    z.string('Search must be text').trim().max(100, 'Search is too long').optional()
+  ),
+});

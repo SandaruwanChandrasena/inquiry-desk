@@ -23,3 +23,38 @@ export async function findOpenDuplicate(data) {
   );
   return result.rows[0];
 }
+
+export async function listInquiries({ userId, role, status, search }) {
+  const conditions = [];
+  const values = [];
+
+  // Owner rule: staff see only their own inquiries, admin sees all
+  if (role !== 'admin') {
+    values.push(userId);
+    conditions.push(`i.created_by = $${values.length}`);
+  }
+
+  if (status) {
+    values.push(status);
+    conditions.push(`i.status = $${values.length}`);
+  }
+
+  if (search) {
+    // Escape % and _ so they are searched as normal characters
+    values.push(`%${search.replace(/[\\%_]/g, '\\$&')}%`);
+    conditions.push(`(i.customer_name ILIKE $${values.length} OR i.subject ILIKE $${values.length})`);
+  }
+
+  const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  const result = await pool.query(
+    `SELECT i.id, i.customer_name, i.email, i.phone, i.subject, i.status, i.version,
+            i.created_at, i.updated_at, u.name AS updated_by_name
+     FROM inquiries i
+     JOIN users u ON u.id = i.updated_by
+     ${where}
+     ORDER BY i.updated_at DESC, i.id DESC`,
+    values
+  );
+  return result.rows;
+}
