@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [
     react(),
     babel({ presets: [reactCompilerPreset()] }),
-    tailwindcss
+    tailwindcss()
   ],
   server: {
     // Send /api requests to the backend, so the browser sees one site (cookie works, no CORS)
