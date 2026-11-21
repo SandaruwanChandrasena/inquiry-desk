@@ -58,3 +58,17 @@ export async function listInquiries({ userId, role, status, search }) {
   );
   return result.rows;
 }
+
+// Owner rule again: staff can only load their own inquiry, admin can load any
+export async function findInquiryById(id, user) {
+  const result = await pool.query(
+    `SELECT i.*, c.name AS created_by_name, u.name AS updated_by_name
+     FROM inquiries i
+     JOIN users c ON c.id = i.created_by
+     JOIN users u ON u.id = i.updated_by
+     WHERE i.id = $1
+       AND ($2 = 'admin' OR i.created_by = $3)`,
+    [id, user.role, user.id]
+  );
+  return result.rows[0];
+}

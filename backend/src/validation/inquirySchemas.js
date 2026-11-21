@@ -43,3 +43,12 @@ export const listQuerySchema = z.object({
     z.string('Search must be text').trim().max(100, 'Search is too long').optional()
   ),
 });
+
+// URL ids arrive as text, so coerce turns "5" into 5
+export const idParamSchema = z.object({
+  id: z.coerce
+    .number('Inquiry id must be a number')
+    .int('Inquiry id must be a whole number')
+    .positive('Inquiry id must be a positive number')
+    .max(2147483647, 'Inquiry id is too large'),
+});

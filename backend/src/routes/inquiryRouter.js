@@ -1,7 +1,16 @@
 import express from 'express';
 import requireAuth from '../middleware/requireAuth.js';
-import { createInquiry, findOpenDuplicate, listInquiries } from '../models/inquiry.js';
-import { createInquirySchema, listQuerySchema } from '../validation/inquirySchemas.js';
+import {
+  createInquiry,
+  findOpenDuplicate,
+  listInquiries,
+  findInquiryById,
+} from '../models/inquiry.js';
+import {
+  createInquirySchema,
+  listQuerySchema,
+  idParamSchema,
+} from '../validation/inquirySchemas.js';
 
 const router = express.Router();
 
@@ -35,6 +44,23 @@ router.get('/', async (req, res) => {
   });
 
   res.json({ inquiries });
+});
+
+router.get('/:id', async (req, res) => {
+  const params = idParamSchema.safeParse(req.params);
+
+  if (!params.success) {
+    return res.status(400).json({ error: params.error.issues[0].message });
+  }
+
+  const inquiry = await findInquiryById(params.data.id, req.user);
+
+  // Same 404 for "does not exist" and "not yours"
+  if (!inquiry) {
+    return res.status(404).json({ error: 'Inquiry not found' });
+  }
+
+  res.json({ inquiry });
 });
 
 router.post('/', async (req, res) => {
