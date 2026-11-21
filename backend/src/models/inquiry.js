@@ -10,3 +10,16 @@ export async function createInquiry(data, userId) {
   );
   return result.rows[0];
 }
+
+// An "open" inquiry is any inquiry that is not resolved yet
+export async function findOpenDuplicate(data) {
+  const result = await pool.query(
+    `SELECT id FROM inquiries
+     WHERE status <> 'resolved'
+       AND LOWER(subject) = LOWER($1)
+       AND (LOWER(email) = LOWER($2) OR phone = $3)
+     LIMIT 1`,
+    [data.subject, data.email, data.phone]
+  );
+  return result.rows[0];
+}
