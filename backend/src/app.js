@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser';
 import pool from './db.js';
 import authRouter from './routes/authRouter.js';
 import inquiryRouter from './routes/inquiryRouter.js';
+import errorHandler from './middleware/errorHandler.js';
 
 const app = express();
 
@@ -17,5 +18,8 @@ app.get('/api/health', async (req, res) => {
 
 app.use('/api/auth', authRouter);
 app.use('/api/inquiries', inquiryRouter);
+
+// Must be last: catches errors from all routes above
+app.use(errorHandler);
 
 export default app;

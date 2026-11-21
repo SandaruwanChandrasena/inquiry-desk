@@ -1,20 +1,34 @@
 import express from 'express';
 import requireAuth from '../middleware/requireAuth.js';
 import { createInquiry } from '../models/inquiry.js';
+import { createInquirySchema } from '../validation/inquirySchemas.js';
 
 const router = express.Router();
 
 // Every inquiry route needs a logged-in user
 router.use(requireAuth);
 
+// Turn zod issues into { field: "first message" }
+function fieldErrors(zodError) {
+  const fields = {};
+  for (const issue of zodError.issues) {
+    const field = issue.path[0];
+    if (!fields[field]) fields[field] = issue.message;
+  }
+  return fields;
+}
+
 router.post('/', async (req, res) => {
-  const { customer_name, email, phone, subject, description } = req.body ?? {};
+  const result = createInquirySchema.safeParse(req.body ?? {});
 
-  const inquiry = await createInquiry(
-    { customer_name, email: email ?? null, phone: phone ?? null, subject, description },
-    req.user.id
-  );
+  if (!result.success) {
+    return res.status(400).json({
+      error: 'Please fix the highlighted fields',
+      fields: fieldErrors(result.error),
+    });
+  }
 
+  const inquiry = await createInquiry(result.data, req.user.id);
   res.status(201).json({ inquiry });
 });
 
