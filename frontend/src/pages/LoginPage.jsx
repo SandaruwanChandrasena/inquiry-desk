@@ -1,30 +1,29 @@
 import { useState } from 'react'
-import { Navigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
 function LoginPage() {
-  const { user, loading: authLoading, login } = useAuth()
+  const navigate = useNavigate()
+  const { user, login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
 
-  if (authLoading) return <p>Loading...</p>
-
-  // Already signed in (or just signed in): go to the home page
   if (user) return <Navigate to="/" replace />
 
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    setLoading(true)
+    setSubmitting(true)
 
     try {
       await login(email, password)
+      navigate('/')
     } catch (err) {
       setError(err.message)
     } finally {
-      setLoading(false)
+      setSubmitting(false)
     }
   }
 
@@ -64,8 +63,8 @@ function LoginPage() {
 
         {error && <p role="alert" style={{ color: 'crimson' }}>{error}</p>}
 
-        <button type="submit" disabled={loading}>
-          {loading ? 'Signing in...' : 'Sign in'}
+        <button type="submit" disabled={submitting}>
+          {submitting ? 'Signing in...' : 'Sign in'}
         </button>
       </form>
     </main>

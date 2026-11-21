@@ -7,7 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // On app start: ask the server if the cookie is still a valid login
+  // On app start, ask the server who is logged in (the browser sends the cookie)
   useEffect(() => {
     api('/auth/me')
       .then((data) => setUser(data.user))

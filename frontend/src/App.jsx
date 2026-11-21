@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 
-// Temporary home page. The inquiry list replaces it in the next step.
+// Temporary home page. The inquiry list replaces it next step.
 function HomePage() {
   const { user, logout } = useAuth()
 
