@@ -1,6 +1,7 @@
 import { CupIcon } from './Icons.jsx'
 
-function Logo({ size = 'md' }) {
+// size: 'md' or 'lg'. dark: white text for dark backgrounds (sidebar, login panel)
+function Logo({ size = 'md', dark = false }) {
   const large = size === 'lg'
 
   return (
@@ -12,7 +13,11 @@ function Logo({ size = 'md' }) {
       >
         <CupIcon className={large ? 'h-6 w-6' : 'h-5 w-5'} />
       </span>
-      <span className={`font-bold text-brand-800 ${large ? 'text-2xl' : 'text-lg'}`}>
+      <span
+        className={`font-bold ${dark ? 'text-white' : 'text-brand-800'} ${
+          large ? 'text-2xl' : 'text-lg'
+        }`}
+      >
         Inquiry Desk
       </span>
     </span>

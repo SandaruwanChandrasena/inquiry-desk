@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CheckIcon, FileIcon, MailIcon, PhoneIcon, UserIcon } from './Icons.jsx'
 
 const EMPTY_FORM = { customer_name: '', email: '', phone: '', subject: '', description: '' }
 
@@ -6,7 +7,8 @@ const EMPTY_FORM = { customer_name: '', email: '', phone: '', subject: '', descr
 function validate(values) {
   const errors = {}
   if (!values.customer_name.trim()) errors.customer_name = 'Customer name is required'
-  if (!values.email.trim() && !values.phone.trim()) errors.contact = 'Give an email or a phone number'
+  if (!values.email.trim() && !values.phone.trim())
+    errors.contact = 'Give an email or a phone number'
   if (!values.subject.trim()) errors.subject = 'Subject is required'
   if (!values.description.trim()) errors.description = 'Description is required'
   return errors
@@ -20,6 +22,13 @@ function FieldError({ id, message }) {
     </p>
   )
 }
+
+function Required() {
+  return <span className="text-red-600"> *</span>
+}
+
+const iconClass =
+  'pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-stone-400'
 
 function InquiryForm({ onSubmit, onCancel }) {
   const [values, setValues] = useState(EMPTY_FORM)
@@ -65,18 +74,22 @@ function InquiryForm({ onSubmit, onCancel }) {
     <form onSubmit={handleSubmit} noValidate className="space-y-4">
       <div>
         <label htmlFor="customer_name" className="label">
-          Customer name *
+          Customer name
+          <Required />
         </label>
-        <input
-          id="customer_name"
-          name="customer_name"
-          className="input"
-          value={values.customer_name}
-          onChange={handleChange}
-          maxLength={100}
-          aria-invalid={Boolean(fieldErrors.customer_name)}
-          aria-describedby="customer_name-error"
-        />
+        <div className="relative">
+          <UserIcon className={iconClass} />
+          <input
+            id="customer_name"
+            name="customer_name"
+            className="input pl-9"
+            value={values.customer_name}
+            onChange={handleChange}
+            maxLength={100}
+            aria-invalid={Boolean(fieldErrors.customer_name)}
+            aria-describedby="customer_name-error"
+          />
+        </div>
         <FieldError id="customer_name-error" message={fieldErrors.customer_name} />
       </div>
 
@@ -86,17 +99,20 @@ function InquiryForm({ onSubmit, onCancel }) {
             <label htmlFor="email" className="label">
               Email
             </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              className="input"
-              value={values.email}
-              onChange={handleChange}
-              maxLength={255}
-              aria-invalid={Boolean(fieldErrors.email || contactError)}
-              aria-describedby="email-error contact-error"
-            />
+            <div className="relative">
+              <MailIcon className={iconClass} />
+              <input
+                id="email"
+                name="email"
+                type="email"
+                className="input pl-9"
+                value={values.email}
+                onChange={handleChange}
+                maxLength={255}
+                aria-invalid={Boolean(fieldErrors.email || contactError)}
+                aria-describedby="email-error contact-error"
+              />
+            </div>
             <FieldError id="email-error" message={fieldErrors.email} />
           </div>
 
@@ -104,17 +120,20 @@ function InquiryForm({ onSubmit, onCancel }) {
             <label htmlFor="phone" className="label">
               Phone
             </label>
-            <input
-              id="phone"
-              name="phone"
-              type="tel"
-              className="input"
-              value={values.phone}
-              onChange={handleChange}
-              maxLength={30}
-              aria-invalid={Boolean(fieldErrors.phone || contactError)}
-              aria-describedby="phone-error contact-error"
-            />
+            <div className="relative">
+              <PhoneIcon className={iconClass} />
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                className="input pl-9"
+                value={values.phone}
+                onChange={handleChange}
+                maxLength={30}
+                aria-invalid={Boolean(fieldErrors.phone || contactError)}
+                aria-describedby="phone-error contact-error"
+              />
+            </div>
             <FieldError id="phone-error" message={fieldErrors.phone} />
           </div>
         </div>
@@ -127,24 +146,29 @@ function InquiryForm({ onSubmit, onCancel }) {
 
       <div>
         <label htmlFor="subject" className="label">
-          Subject *
+          Subject
+          <Required />
         </label>
-        <input
-          id="subject"
-          name="subject"
-          className="input"
-          value={values.subject}
-          onChange={handleChange}
-          maxLength={150}
-          aria-invalid={Boolean(fieldErrors.subject)}
-          aria-describedby="subject-error"
-        />
+        <div className="relative">
+          <FileIcon className={iconClass} />
+          <input
+            id="subject"
+            name="subject"
+            className="input pl-9"
+            value={values.subject}
+            onChange={handleChange}
+            maxLength={150}
+            aria-invalid={Boolean(fieldErrors.subject)}
+            aria-describedby="subject-error"
+          />
+        </div>
         <FieldError id="subject-error" message={fieldErrors.subject} />
       </div>
 
       <div>
         <label htmlFor="description" className="label">
-          Description *
+          Description
+          <Required />
         </label>
         <textarea
           id="description"
@@ -168,6 +192,7 @@ function InquiryForm({ onSubmit, onCancel }) {
 
       <div className="flex gap-2">
         <button type="submit" className="btn-primary" disabled={saving}>
+          {!saving && <CheckIcon className="mr-1.5 h-4 w-4" />}
           {saving ? 'Saving...' : 'Save inquiry'}
         </button>
         <button type="button" className="btn-secondary" onClick={onCancel} disabled={saving}>

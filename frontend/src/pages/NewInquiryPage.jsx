@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../api/client.js'
-import AppHeader from '../components/AppHeader.jsx'
+import AppLayout from '../components/AppLayout.jsx'
 import InquiryForm from '../components/InquiryForm.jsx'
 
 function NewInquiryPage() {
@@ -12,18 +12,18 @@ function NewInquiryPage() {
   }
 
   return (
-    <>
-      <AppHeader />
-      <main className="mx-auto max-w-2xl px-4 py-6">
+    <AppLayout>
+      <div className="max-w-2xl">
         <Link to="/" className="text-sm text-brand-700 hover:underline">
           ← Back to inquiries
         </Link>
-        <h2 className="mt-2 mb-4 text-xl font-semibold">New inquiry</h2>
+        <h2 className="mt-2 text-2xl font-semibold">New inquiry</h2>
+        <p className="mb-4 text-sm text-stone-500">Create a new customer inquiry</p>
         <div className="card">
           <InquiryForm onSubmit={handleCreate} onCancel={() => navigate('/')} />
         </div>
-      </main>
-    </>
+      </div>
+    </AppLayout>
   )
 }
 
