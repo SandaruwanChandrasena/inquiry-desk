@@ -97,9 +97,6 @@ All passwords: `Password123!`
 | bob@example.com | staff | only inquiries Bob created |
 | admin@example.com | admin | all inquiries |
 
-The login page also lists these accounts (click one to fill the form).
-This is only for reviewers; a real app would not show them.
-
 ## Running the tests
 
 ### Backend (11 tests)

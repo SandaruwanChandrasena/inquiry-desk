@@ -11,14 +11,6 @@ import {
   MailIcon,
 } from '../components/Icons.jsx'
 
-// Seeded test users (see backend/db/seed.js). Shown only to make the demo quick.
-const DEMO_PASSWORD = 'Password123!'
-const DEMO_ACCOUNTS = [
-  { email: 'alice@example.com', role: 'Staff' },
-  { email: 'bob@example.com', role: 'Staff' },
-  { email: 'admin@example.com', role: 'Admin' },
-]
-
 const HIGHLIGHTS = [
   'Record inquiries with clear contact details',
   'Find them fast by status or search',
@@ -35,12 +27,6 @@ function LoginPage() {
   const [submitting, setSubmitting] = useState(false)
 
   if (user) return <Navigate to="/" replace />
-
-  function fillDemoAccount(demoEmail) {
-    setEmail(demoEmail)
-    setPassword(DEMO_PASSWORD)
-    setError('')
-  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -152,27 +138,6 @@ function LoginPage() {
                 {submitting ? 'Signing in...' : 'Sign in →'}
               </button>
             </form>
-          </div>
-
-          <div className="mt-4 rounded-xl border border-dashed border-stone-300 bg-white/60 p-4 text-sm">
-            <p className="font-medium text-stone-700">Demo accounts</p>
-            <p className="text-xs text-stone-500">
-              Click one to fill the form. Password for all: {DEMO_PASSWORD}
-            </p>
-            <ul className="mt-2 space-y-1">
-              {DEMO_ACCOUNTS.map((account) => (
-                <li key={account.email}>
-                  <button
-                    type="button"
-                    onClick={() => fillDemoAccount(account.email)}
-                    className="flex w-full items-center justify-between rounded-md px-2 py-1 text-left hover:bg-brand-50"
-                  >
-                    <span>{account.email}</span>
-                    <span className="text-xs text-stone-400">{account.role}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
           </div>
         </div>
       </section>
