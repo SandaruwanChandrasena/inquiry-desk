@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../api/client.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import AppHeader from '../components/AppHeader.jsx'
@@ -15,7 +15,8 @@ const STATUS_OPTIONS = [
 function InquiryListPage() {
   const { user } = useAuth()
   const location = useLocation()
-  const savedMessage = location.state?.message
+  const navigate = useNavigate()
+  const [savedMessage] = useState(location.state?.message)
   const [inquiries, setInquiries] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -23,6 +24,11 @@ function InquiryListPage() {
   const [status, setStatus] = useState('')
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
+
+  // Keep the "saved" message on screen, but remove it from history so F5 doesn't show it again
+  useEffect(() => {
+    if (location.state?.message) navigate(location.pathname, { replace: true })
+  }, [location, navigate])
 
   useEffect(() => {
     const params = new URLSearchParams()
@@ -167,7 +173,14 @@ function InquiryListPage() {
                 {inquiries.map((inquiry) => (
                   <tr key={inquiry.id} className="border-t border-stone-100 hover:bg-stone-50">
                     <td className="px-4 py-3 font-medium">{inquiry.customer_name}</td>
-                    <td className="px-4 py-3">{inquiry.subject}</td>
+                    <td className="px-4 py-3">
+                      <Link
+                        to={`/inquiries/${inquiry.id}`}
+                        className="text-brand-700 hover:underline"
+                      >
+                        {inquiry.subject}
+                      </Link>
+                    </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={inquiry.status} />
                     </td>
