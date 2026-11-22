@@ -4,6 +4,7 @@ import { api } from '../api/client.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import AppHeader from '../components/AppHeader.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
+import { InboxIcon } from '../components/Icons.jsx'
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All statuses' },
@@ -11,6 +12,22 @@ const STATUS_OPTIONS = [
   { value: 'in_progress', label: 'In Progress' },
   { value: 'resolved', label: 'Resolved' },
 ]
+
+// Grey placeholder rows while the list loads
+function SkeletonRows() {
+  return (
+    <div className="rounded-xl border border-stone-200 bg-white p-4 shadow-sm" aria-hidden="true">
+      {[1, 2, 3].map((row) => (
+        <div key={row} className="flex animate-pulse items-center gap-4 border-b border-stone-100 py-3 last:border-0">
+          <div className="h-4 w-1/4 rounded bg-stone-200" />
+          <div className="h-4 w-1/3 rounded bg-stone-200" />
+          <div className="h-5 w-20 rounded-full bg-stone-200" />
+          <div className="h-4 w-1/6 rounded bg-stone-200" />
+        </div>
+      ))}
+    </div>
+  )
+}
 
 function InquiryListPage() {
   const { user } = useAuth()
@@ -89,10 +106,17 @@ function InquiryListPage() {
       <AppHeader />
 
       <main className="mx-auto max-w-5xl px-4 py-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">
-            {user.role === 'admin' ? 'All inquiries' : 'My inquiries'}
-          </h2>
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-semibold">
+              {user.role === 'admin' ? 'All inquiries' : 'My inquiries'}
+            </h2>
+            <p className="text-sm text-stone-500">
+              {loading || error
+                ? 'Find an inquiry by status, customer or subject.'
+                : `${inquiries.length} ${inquiries.length === 1 ? 'inquiry' : 'inquiries'}`}
+            </p>
+          </div>
           <Link to="/inquiries/new" className="btn-primary">
             + New inquiry
           </Link>
@@ -104,7 +128,10 @@ function InquiryListPage() {
           </p>
         )}
 
-        <form onSubmit={handleSearch} className="mb-4 flex flex-wrap gap-2">
+        <form
+          onSubmit={handleSearch}
+          className="mb-4 flex flex-wrap gap-2 rounded-xl border border-stone-200 bg-white p-3 shadow-sm"
+        >
           <select
             aria-label="Filter by status"
             className="input w-auto"
@@ -141,7 +168,12 @@ function InquiryListPage() {
           </button>
         </form>
 
-        {loading && <p className="text-stone-500">Loading inquiries...</p>}
+        {loading && (
+          <>
+            <p className="sr-only">Loading inquiries...</p>
+            <SkeletonRows />
+          </>
+        )}
 
         {!loading && error && (
           <div role="alert" className="alert-error flex items-center justify-between gap-4">
@@ -153,8 +185,29 @@ function InquiryListPage() {
         )}
 
         {!loading && !error && inquiries.length === 0 && (
-          <div className="card text-center text-stone-500">
-            {hasFilters ? 'No inquiries match your filters.' : 'No inquiries yet.'}
+          <div className="card flex flex-col items-center py-10 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+              <InboxIcon className="h-6 w-6" />
+            </span>
+            {hasFilters ? (
+              <>
+                <h3 className="mt-3 font-semibold">No inquiries match your filters.</h3>
+                <p className="mt-1 text-sm text-stone-500">Try another status or search word.</p>
+                <button className="btn-secondary mt-4" onClick={handleClear}>
+                  Clear filters
+                </button>
+              </>
+            ) : (
+              <>
+                <h3 className="mt-3 font-semibold">No inquiries yet.</h3>
+                <p className="mt-1 text-sm text-stone-500">
+                  Record the first customer inquiry to get started.
+                </p>
+                <Link to="/inquiries/new" className="btn-primary mt-4">
+                  + New inquiry
+                </Link>
+              </>
+            )}
           </div>
         )}
 
@@ -171,12 +224,20 @@ function InquiryListPage() {
               </thead>
               <tbody>
                 {inquiries.map((inquiry) => (
-                  <tr key={inquiry.id} className="border-t border-stone-100 hover:bg-stone-50">
-                    <td className="px-4 py-3 font-medium">{inquiry.customer_name}</td>
+                  <tr
+                    key={inquiry.id}
+                    onClick={() => navigate(`/inquiries/${inquiry.id}`)}
+                    className="cursor-pointer border-t border-stone-100 hover:bg-brand-50/50"
+                  >
+                    <td className="px-4 py-3">
+                      <div className="font-medium">{inquiry.customer_name}</div>
+                      <div className="text-xs text-stone-500">{inquiry.email || inquiry.phone}</div>
+                    </td>
                     <td className="px-4 py-3">
                       <Link
                         to={`/inquiries/${inquiry.id}`}
-                        className="text-brand-700 hover:underline"
+                        onClick={(e) => e.stopPropagation()}
+                        className="font-medium text-brand-700 hover:underline"
                       >
                         {inquiry.subject}
                       </Link>
