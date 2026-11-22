@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import AppLayout from '../components/AppLayout.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 import { displayStage } from '../utils/statusStyles.js'
-import { EyeIcon, InboxIcon, SearchIcon } from '../components/Icons.jsx'
+import { EyeIcon, InboxIcon, PlusIcon, SearchIcon } from '../components/Icons.jsx'
 
 const STATUS_OPTIONS = [
   { value: '', label: 'All statuses' },
@@ -137,7 +137,8 @@ function InquiryListPage() {
           </p>
         </div>
         <Link to="/inquiries/new" className="btn-primary">
-          + New inquiry
+          <PlusIcon className="mr-1.5 h-4 w-4" />
+          New inquiry
         </Link>
       </div>
 
@@ -226,7 +227,8 @@ function InquiryListPage() {
                 Record the first customer inquiry to get started.
               </p>
               <Link to="/inquiries/new" className="btn-primary mt-4">
-                + New inquiry
+                <PlusIcon className="mr-1.5 h-4 w-4" />
+                New inquiry
               </Link>
             </>
           )}

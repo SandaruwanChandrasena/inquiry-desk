@@ -16,7 +16,8 @@ const cookieOptions = {
 router.post('/login', async (req, res) => {
   const { email, password } = req.body ?? {};
 
-  if (!email || !password) {
+  // typeof check: a number or array here would crash .trim() and bcrypt (500)
+  if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) {
     return res.status(400).json({ error: 'Email and password are required' });
   }
 

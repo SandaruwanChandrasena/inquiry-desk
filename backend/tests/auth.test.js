@@ -26,6 +26,15 @@ describe('Auth', () => {
     expect(res.headers['set-cookie']).toBeUndefined();
   });
 
+  test('email or password not text → 400, not a crash', async () => {
+    const res = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 123, password: 'Password123!' });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBe('Email and password are required');
+  });
+
   test('correct login → 200 and an httpOnly token cookie', async () => {
     const res = await request(app)
       .post('/api/auth/login')
