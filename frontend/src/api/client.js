@@ -12,6 +12,12 @@ export async function api(path, { method = 'GET', body } = {}) {
     throw new Error('Cannot reach the server. Check your connection and try again.')
   }
 
+  // Login expired or cookie gone: go to the login page.
+  // Not for /auth/* (wrong password is also 401, and /auth/me on start would loop).
+  if (res.status === 401 && !path.startsWith('/auth/')) {
+    window.location.assign('/login')
+  }
+
   const data = await res.json().catch(() => ({}))
 
   if (!res.ok) {
