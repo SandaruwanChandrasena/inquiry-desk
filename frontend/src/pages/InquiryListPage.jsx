@@ -4,6 +4,7 @@ import { api } from '../api/client.js'
 import { useAuth } from '../context/AuthContext.jsx'
 import AppLayout from '../components/AppLayout.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
+import { displayStage } from '../utils/statusStyles.js'
 import { EyeIcon, InboxIcon, SearchIcon } from '../components/Icons.jsx'
 
 const STATUS_OPTIONS = [
@@ -12,6 +13,8 @@ const STATUS_OPTIONS = [
   { value: 'in_progress', label: 'In Progress' },
   { value: 'resolved', label: 'Resolved' },
 ]
+
+const PAGE_SIZES = [5, 10, 20]
 
 // Grey placeholder rows while the list loads
 function SkeletonRows() {
@@ -44,6 +47,8 @@ function InquiryListPage() {
   const [status, setStatus] = useState('')
   const [search, setSearch] = useState('')
   const [searchInput, setSearchInput] = useState('')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(5)
 
   // Keep the "saved" message on screen, but remove it from history so F5 doesn't show it again
   useEffect(() => {
@@ -85,6 +90,7 @@ function InquiryListPage() {
     startLoading()
     setStatus(nextStatus)
     setSearch(nextSearch)
+    setPage(1)
   }
 
   function handleSearch(e) {
@@ -103,6 +109,18 @@ function InquiryListPage() {
   }
 
   const hasFilters = status !== '' || search !== ''
+
+  // Pagination is done here in the browser: the API sends all rows, we show one page of them
+  const totalPages = Math.max(1, Math.ceil(inquiries.length / pageSize))
+  const currentPage = Math.min(page, totalPages)
+  const firstIndex = (currentPage - 1) * pageSize
+  const pageRows = inquiries.slice(firstIndex, firstIndex + pageSize)
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1)
+
+  function handlePageSizeChange(e) {
+    setPageSize(Number(e.target.value))
+    setPage(1)
+  }
 
   return (
     <AppLayout>
@@ -220,7 +238,8 @@ function InquiryListPage() {
           <table className="w-full text-left text-sm">
             <thead className="bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
               <tr>
-                <th className="px-4 py-3">#</th>
+                <th className="px-4 py-3">No.</th>
+                <th className="px-4 py-3">Inquiry No.</th>
                 <th className="px-4 py-3">Customer</th>
                 <th className="px-4 py-3">Subject</th>
                 <th className="px-4 py-3">Status</th>
@@ -231,13 +250,14 @@ function InquiryListPage() {
               </tr>
             </thead>
             <tbody>
-              {inquiries.map((inquiry) => (
+              {pageRows.map((inquiry, index) => (
                 <tr
                   key={inquiry.id}
                   onClick={() => navigate(`/inquiries/${inquiry.id}`)}
                   className="cursor-pointer border-t border-stone-100 hover:bg-brand-50/50"
                 >
-                  <td className="px-4 py-3 text-stone-400">#{inquiry.id}</td>
+                  <td className="px-4 py-3 text-stone-400">{firstIndex + index + 1}</td>
+                  <td className="px-4 py-3 font-medium text-stone-500">#{inquiry.id}</td>
                   <td className="px-4 py-3">
                     <div className="font-medium">{inquiry.customer_name}</div>
                     <div className="text-xs text-stone-500">{inquiry.email || inquiry.phone}</div>
@@ -252,7 +272,7 @@ function InquiryListPage() {
                     </Link>
                   </td>
                   <td className="px-4 py-3">
-                    <StatusBadge status={inquiry.status} />
+                    <StatusBadge stage={displayStage(inquiry)} />
                   </td>
                   <td className="px-4 py-3 text-stone-600">
                     {inquiry.updated_by_name}
@@ -274,6 +294,58 @@ function InquiryListPage() {
               ))}
             </tbody>
           </table>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-stone-100 px-4 py-3 text-sm text-stone-600">
+            <span>
+              Showing {firstIndex + 1}–{firstIndex + pageRows.length} of {inquiries.length}
+            </span>
+            <div className="flex flex-wrap items-center gap-4">
+              <label className="flex items-center gap-2">
+                Rows per page
+                <select
+                  className="input w-auto py-1"
+                  value={pageSize}
+                  onChange={handlePageSizeChange}
+                >
+                  {PAGE_SIZES.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <nav aria-label="Pagination" className="flex items-center gap-1">
+                <button
+                  className="h-8 min-w-8 rounded-md px-2 hover:bg-stone-100 disabled:opacity-40"
+                  onClick={() => setPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  aria-label="Previous page"
+                >
+                  ‹
+                </button>
+                {pageNumbers.map((number) => (
+                  <button
+                    key={number}
+                    onClick={() => setPage(number)}
+                    aria-current={number === currentPage ? 'page' : undefined}
+                    className={`h-8 min-w-8 rounded-md px-2 ${
+                      number === currentPage ? 'bg-brand-600 text-white' : 'hover:bg-stone-100'
+                    }`}
+                  >
+                    {number}
+                  </button>
+                ))}
+                <button
+                  className="h-8 min-w-8 rounded-md px-2 hover:bg-stone-100 disabled:opacity-40"
+                  onClick={() => setPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  aria-label="Next page"
+                >
+                  ›
+                </button>
+              </nav>
+            </div>
+          </div>
         </div>
       )}
     </AppLayout>

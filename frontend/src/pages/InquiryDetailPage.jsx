@@ -4,6 +4,8 @@ import { api } from '../api/client.js'
 import AppLayout from '../components/AppLayout.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 import StatusSteps from '../components/StatusSteps.jsx'
+import ActivityTimeline from '../components/ActivityTimeline.jsx'
+import { displayStage } from '../utils/statusStyles.js'
 import {
   CalendarIcon,
   ClockIcon,
@@ -151,11 +153,11 @@ function InquiryDetailPage() {
                     <h3 className="text-xl font-semibold">{inquiry.subject}</h3>
                     <p className="text-sm text-stone-400">#{inquiry.id}</p>
                   </div>
-                  <StatusBadge status={inquiry.status} />
+                  <StatusBadge stage={displayStage(inquiry)} />
                 </div>
 
                 <div className="mt-6">
-                  <StatusSteps status={inquiry.status} />
+                  <StatusSteps status={inquiry.status} wasReopened={inquiry.was_reopened} />
                 </div>
 
                 <dl className="mt-6 divide-y divide-stone-100 border-t border-stone-100 text-sm">
@@ -200,40 +202,47 @@ function InquiryDetailPage() {
               </section>
             </div>
 
-            <section className="card h-fit">
-              <SectionTitle>Update status</SectionTitle>
-              <p className="mb-3 text-sm text-stone-500">Next allowed step:</p>
+            <div className="space-y-4">
+              <section className="card">
+                <SectionTitle>Update status</SectionTitle>
+                <p className="mb-3 text-sm text-stone-500">Next allowed step:</p>
 
-              <div className="flex flex-col gap-2">
-                {ACTIONS[inquiry.status]?.map((action) => (
-                  <button
-                    key={action.status}
-                    className="btn-primary w-full"
-                    disabled={saving || stale}
-                    onClick={() => handleChangeStatus(action.status)}
-                  >
-                    {saving ? 'Saving...' : action.label}
-                  </button>
-                ))}
-              </div>
-
-              {successMessage && (
-                <p role="status" className="alert-success mt-3">
-                  {successMessage}
-                </p>
-              )}
-
-              {actionError && (
-                <div role="alert" className="alert-error mt-3">
-                  <p>{actionError}</p>
-                  {stale && (
-                    <button className="btn-secondary mt-2 w-full" onClick={handleReload}>
-                      Reload
+                <div className="flex flex-col gap-2">
+                  {ACTIONS[inquiry.status]?.map((action) => (
+                    <button
+                      key={action.status}
+                      className="btn-primary w-full"
+                      disabled={saving || stale}
+                      onClick={() => handleChangeStatus(action.status)}
+                    >
+                      {saving ? 'Saving...' : action.label}
                     </button>
-                  )}
+                  ))}
                 </div>
-              )}
-            </section>
+
+                {successMessage && (
+                  <p role="status" className="alert-success mt-3">
+                    {successMessage}
+                  </p>
+                )}
+
+                {actionError && (
+                  <div role="alert" className="alert-error mt-3">
+                    <p>{actionError}</p>
+                    {stale && (
+                      <button className="btn-secondary mt-2 w-full" onClick={handleReload}>
+                        Reload
+                      </button>
+                    )}
+                  </div>
+                )}
+              </section>
+
+              <section className="card">
+                <SectionTitle>Activity</SectionTitle>
+                <ActivityTimeline history={inquiry.history} />
+              </section>
+            </div>
           </div>
         </>
       )}

@@ -110,6 +110,42 @@ describe('Status rules', () => {
   });
 });
 
+describe('History', () => {
+  test('every action is saved with who did it, and a reopen is marked', async () => {
+    const inquiry = await createTestInquiry(alice);
+    const url = `/api/inquiries/${inquiry.id}/status`;
+
+    await alice.patch(url).send({ status: 'in_progress', version: 1 }).expect(200);
+    await alice.patch(url).send({ status: 'resolved', version: 2 }).expect(200);
+    await alice.patch(url).send({ status: 'in_progress', version: 3 }).expect(200); // reopen
+
+    const res = await alice.get(`/api/inquiries/${inquiry.id}`);
+    const { history } = res.body.inquiry;
+
+    // Newest first; from_status null = created
+    expect(history.map((h) => [h.from_status, h.to_status])).toEqual([
+      ['resolved', 'in_progress'],
+      ['in_progress', 'resolved'],
+      ['new', 'in_progress'],
+      [null, 'new'],
+    ]);
+    expect(history[0].changed_by_name).toBe('Alice Staff');
+    expect(res.body.inquiry.was_reopened).toBe(true);
+  });
+
+  test('a rejected change (old version) saves no history', async () => {
+    const inquiry = await createTestInquiry(alice);
+    const url = `/api/inquiries/${inquiry.id}/status`;
+
+    await alice.patch(url).send({ status: 'in_progress', version: 1 }).expect(200);
+    await alice.patch(url).send({ status: 'in_progress', version: 1 }).expect(409);
+
+    const res = await alice.get(`/api/inquiries/${inquiry.id}`);
+    expect(res.body.inquiry.history).toHaveLength(2);
+    expect(res.body.inquiry.was_reopened).toBe(false);
+  });
+});
+
 describe('Validation', () => {
   test('no email and no phone → 400 with a contact error', async () => {
     const res = await alice.post('/api/inquiries').send({

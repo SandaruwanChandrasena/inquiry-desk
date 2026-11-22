@@ -126,7 +126,7 @@ router.patch('/:id/status', async (req, res) => {
   }
 
   // version is checked again inside the UPDATE, in case someone saved just now
-  const updated = await updateStatus(id, status, version, req.user.id);
+  const updated = await updateStatus(id, inquiry.status, status, version, req.user.id);
 
   if (!updated) {
     return res.status(409).json({ error: staleMessage });
