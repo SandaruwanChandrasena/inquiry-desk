@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { api } from '../api/client.js'
 import { useAuth } from '../context/AuthContext.jsx'
+import AppHeader from '../components/AppHeader.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 
 const STATUS_OPTIONS = [
@@ -11,7 +13,9 @@ const STATUS_OPTIONS = [
 ]
 
 function InquiryListPage() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
+  const location = useLocation()
+  const savedMessage = location.state?.message
   const [inquiries, setInquiries] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -76,24 +80,23 @@ function InquiryListPage() {
 
   return (
     <>
-      <header className="border-b border-stone-200 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <h1 className="text-lg font-bold text-brand-700">Inquiry Desk</h1>
-          <div className="flex items-center gap-3 text-sm text-stone-600">
-            <span>
-              {user.name} <span className="text-stone-400">({user.role})</span>
-            </span>
-            <button className="btn-secondary" onClick={logout}>
-              Sign out
-            </button>
-          </div>
-        </div>
-      </header>
+      <AppHeader />
 
       <main className="mx-auto max-w-5xl px-4 py-6">
-        <h2 className="mb-4 text-xl font-semibold">
-          {user.role === 'admin' ? 'All inquiries' : 'My inquiries'}
-        </h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-xl font-semibold">
+            {user.role === 'admin' ? 'All inquiries' : 'My inquiries'}
+          </h2>
+          <Link to="/inquiries/new" className="btn-primary">
+            + New inquiry
+          </Link>
+        </div>
+
+        {savedMessage && (
+          <p role="status" className="alert-success mb-4">
+            {savedMessage}
+          </p>
+        )}
 
         <form onSubmit={handleSearch} className="mb-4 flex flex-wrap gap-2">
           <select

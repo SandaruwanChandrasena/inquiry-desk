@@ -1,0 +1,181 @@
+import { useState } from 'react'
+
+const EMPTY_FORM = { customer_name: '', email: '', phone: '', subject: '', description: '' }
+
+// Quick checks in the browser to guide the user. The API checks everything again.
+function validate(values) {
+  const errors = {}
+  if (!values.customer_name.trim()) errors.customer_name = 'Customer name is required'
+  if (!values.email.trim() && !values.phone.trim()) errors.contact = 'Give an email or a phone number'
+  if (!values.subject.trim()) errors.subject = 'Subject is required'
+  if (!values.description.trim()) errors.description = 'Description is required'
+  return errors
+}
+
+function FieldError({ id, message }) {
+  if (!message) return null
+  return (
+    <p id={id} className="field-error">
+      {message}
+    </p>
+  )
+}
+
+function InquiryForm({ onSubmit, onCancel }) {
+  const [values, setValues] = useState(EMPTY_FORM)
+  const [fieldErrors, setFieldErrors] = useState({})
+  const [formError, setFormError] = useState('')
+  const [saving, setSaving] = useState(false)
+
+  function handleChange(e) {
+    const { name, value } = e.target
+    setValues((prev) => ({ ...prev, [name]: value }))
+
+    // Hide the old error for this field once the user starts fixing it
+    setFieldErrors((prev) => {
+      const next = { ...prev }
+      delete next[name]
+      if (name === 'email' || name === 'phone') delete next.contact
+      return next
+    })
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault()
+    setFormError('')
+
+    const errors = validate(values)
+    setFieldErrors(errors)
+    if (Object.keys(errors).length > 0) return
+
+    setSaving(true)
+    try {
+      await onSubmit(values)
+    } catch (err) {
+      setFieldErrors(err.fields ?? {})
+      setFormError(err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const contactError = fieldErrors.contact
+
+  return (
+    <form onSubmit={handleSubmit} noValidate className="space-y-4">
+      <div>
+        <label htmlFor="customer_name" className="label">
+          Customer name *
+        </label>
+        <input
+          id="customer_name"
+          name="customer_name"
+          className="input"
+          value={values.customer_name}
+          onChange={handleChange}
+          maxLength={100}
+          aria-invalid={Boolean(fieldErrors.customer_name)}
+          aria-describedby="customer_name-error"
+        />
+        <FieldError id="customer_name-error" message={fieldErrors.customer_name} />
+      </div>
+
+      <div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="email" className="label">
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              className="input"
+              value={values.email}
+              onChange={handleChange}
+              maxLength={255}
+              aria-invalid={Boolean(fieldErrors.email || contactError)}
+              aria-describedby="email-error contact-error"
+            />
+            <FieldError id="email-error" message={fieldErrors.email} />
+          </div>
+
+          <div>
+            <label htmlFor="phone" className="label">
+              Phone
+            </label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              className="input"
+              value={values.phone}
+              onChange={handleChange}
+              maxLength={30}
+              aria-invalid={Boolean(fieldErrors.phone || contactError)}
+              aria-describedby="phone-error contact-error"
+            />
+            <FieldError id="phone-error" message={fieldErrors.phone} />
+          </div>
+        </div>
+        {contactError ? (
+          <FieldError id="contact-error" message={contactError} />
+        ) : (
+          <p className="mt-1 text-xs text-stone-500">Give at least one: email or phone.</p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="subject" className="label">
+          Subject *
+        </label>
+        <input
+          id="subject"
+          name="subject"
+          className="input"
+          value={values.subject}
+          onChange={handleChange}
+          maxLength={150}
+          aria-invalid={Boolean(fieldErrors.subject)}
+          aria-describedby="subject-error"
+        />
+        <FieldError id="subject-error" message={fieldErrors.subject} />
+      </div>
+
+      <div>
+        <label htmlFor="description" className="label">
+          Description *
+        </label>
+        <textarea
+          id="description"
+          name="description"
+          rows={4}
+          className="input"
+          value={values.description}
+          onChange={handleChange}
+          maxLength={2000}
+          aria-invalid={Boolean(fieldErrors.description)}
+          aria-describedby="description-error"
+        />
+        <FieldError id="description-error" message={fieldErrors.description} />
+      </div>
+
+      {formError && (
+        <p role="alert" className="alert-error">
+          {formError}
+        </p>
+      )}
+
+      <div className="flex gap-2">
+        <button type="submit" className="btn-primary" disabled={saving}>
+          {saving ? 'Saving...' : 'Save inquiry'}
+        </button>
+        <button type="button" className="btn-secondary" onClick={onCancel} disabled={saving}>
+          Cancel
+        </button>
+      </div>
+    </form>
+  )
+}
+
+export default InquiryForm

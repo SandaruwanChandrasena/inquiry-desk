@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import LoginPage from './pages/LoginPage.jsx'
 import InquiryListPage from './pages/InquiryListPage.jsx'
+import NewInquiryPage from './pages/NewInquiryPage.jsx'
 
 function App() {
   return (
@@ -14,6 +15,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <InquiryListPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/inquiries/new"
+            element={
+              <ProtectedRoute>
+                <NewInquiryPage />
               </ProtectedRoute>
             }
           />
