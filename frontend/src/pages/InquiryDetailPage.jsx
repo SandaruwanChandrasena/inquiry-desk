@@ -5,9 +5,9 @@ import AppLayout from '../components/AppLayout.jsx'
 import StatusBadge from '../components/StatusBadge.jsx'
 import StatusSteps from '../components/StatusSteps.jsx'
 import ActivityTimeline from '../components/ActivityTimeline.jsx'
+import PageHeader from '../components/PageHeader.jsx'
 import { displayStage } from '../utils/statusStyles.js'
 import {
-  ArrowLeftIcon,
   CalendarIcon,
   ClockIcon,
   FileIcon,
@@ -126,22 +126,10 @@ function InquiryDetailPage() {
     <AppLayout>
       {/* Big screens: the page fits the window (4rem = main's top + bottom padding), only the panels scroll */}
       <div className="lg:flex lg:h-[calc(100vh-4rem)] lg:min-h-[32rem] lg:flex-col">
-        <div className="mb-6 flex shrink-0 items-center gap-4">
-          <Link
-            to="/"
-            aria-label="Back to inquiries"
-            title="Back to inquiries"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-brand-700 shadow-sm transition-colors hover:bg-brand-50"
-          >
-            <ArrowLeftIcon className="h-5 w-5" />
-          </Link>
-          <div className="border-l border-stone-200 pl-4">
-            <h2 className="text-2xl font-semibold">Inquiry details</h2>
-            <p className="text-sm text-stone-500">
-              View the inquiry and move it through its lifecycle
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title="Inquiry details"
+          subtitle="View the inquiry and move it through its lifecycle"
+        />
 
         {loading && <p className="text-stone-500">Loading inquiry...</p>}
 

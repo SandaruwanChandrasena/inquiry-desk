@@ -82,6 +82,7 @@ function InquiryForm({ onSubmit, onCancel }) {
           <input
             id="customer_name"
             name="customer_name"
+            placeholder="Enter customer name"
             className="input pl-9"
             value={values.customer_name}
             onChange={handleChange}
@@ -104,6 +105,7 @@ function InquiryForm({ onSubmit, onCancel }) {
               <input
                 id="email"
                 name="email"
+                placeholder="Enter email address"
                 type="email"
                 className="input pl-9"
                 value={values.email}
@@ -125,6 +127,7 @@ function InquiryForm({ onSubmit, onCancel }) {
               <input
                 id="phone"
                 name="phone"
+                placeholder="Enter phone number"
                 type="tel"
                 className="input pl-9"
                 value={values.phone}
@@ -154,6 +157,7 @@ function InquiryForm({ onSubmit, onCancel }) {
           <input
             id="subject"
             name="subject"
+            placeholder="Enter inquiry subject"
             className="input pl-9"
             value={values.subject}
             onChange={handleChange}
@@ -173,6 +177,7 @@ function InquiryForm({ onSubmit, onCancel }) {
         <textarea
           id="description"
           name="description"
+          placeholder="Enter inquiry details..."
           rows={4}
           className="input"
           value={values.description}

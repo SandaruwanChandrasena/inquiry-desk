@@ -1,7 +1,8 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../api/client.js'
 import AppLayout from '../components/AppLayout.jsx'
 import InquiryForm from '../components/InquiryForm.jsx'
+import PageHeader from '../components/PageHeader.jsx'
 
 function NewInquiryPage() {
   const navigate = useNavigate()
@@ -13,15 +14,9 @@ function NewInquiryPage() {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl">
-        <Link to="/" className="text-sm text-brand-700 hover:underline">
-          ← Back to inquiries
-        </Link>
-        <h2 className="mt-2 text-2xl font-semibold">New inquiry</h2>
-        <p className="mb-4 text-sm text-stone-500">Create a new customer inquiry</p>
-        <div className="card">
-          <InquiryForm onSubmit={handleCreate} onCancel={() => navigate('/')} />
-        </div>
+      <PageHeader title="New inquiry" subtitle="Create a new customer inquiry" />
+      <div className="card">
+        <InquiryForm onSubmit={handleCreate} onCancel={() => navigate('/')} />
       </div>
     </AppLayout>
   )
