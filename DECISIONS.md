@@ -63,12 +63,17 @@
 
 ## 🤖 Use of AI
 
-I used Claude as a pair programmer for explanations, first drafts, reviews and finding bugs.
-I made the decisions and checked every file before committing.
+| Tool | What I used it for |
+|---|---|
+| **Claude** | Pair programmer: explanations, first drafts of code, code reviews, finding bugs |
+| **ChatGPT** | UI ideas: I generated mockup images of screens and used them as a visual guide |
+
+I made the decisions, built the UI with my own components and Tailwind theme, and checked every file before committing.
 
 | AI suggestion | What I did | Why |
 |---|---|---|
-| Keep the login token in `localStorage` | ✏️ **Changed** to an httpOnly cookie | JavaScript (and XSS) can't read it |
+| Keep the login token in `localStorage` (Claude) | ✏️ **Changed** to an httpOnly cookie | JavaScript (and XSS) can't read it |
 | A 4th status "Reopened" in the database | ❌ **Rejected** | The brief names three statuses, so "Reopened" is shown from the history |
-| A mockup with a dashboard, reports, delete and a free status dropdown | ❌ **Rejected** (kept only the visual style) | A free dropdown would allow blocked moves like New → Resolved |
-| Fix for login crashing (500) on a non-text email | ✅ **Accepted**, after proof | I wrote a failing test first, then fixed it (400) |
+| A ChatGPT mockup with a dashboard, reports, delete and a free status dropdown | ❌ **Rejected** (kept only the visual style) | Extra features earn no points, and a free dropdown would allow blocked moves like New → Resolved |
+| ChatGPT mockups for the detail and new inquiry pages (round back button, activity card, form layout) | ✅ **Accepted** the layout | I rebuilt it with my own components; the logic and API did not change |
+| Fix for login crashing (500) on a non-text email (Claude) | ✅ **Accepted**, after proof | I wrote a failing test first, then fixed it (400) |
