@@ -7,6 +7,7 @@ import StatusSteps from '../components/StatusSteps.jsx'
 import ActivityTimeline from '../components/ActivityTimeline.jsx'
 import { displayStage } from '../utils/statusStyles.js'
 import {
+  ArrowLeftIcon,
   CalendarIcon,
   ClockIcon,
   FileIcon,
@@ -32,6 +33,21 @@ function InfoRow({ Icon, label, children }) {
       <Icon className="mt-0.5 h-4 w-4 shrink-0 text-stone-400" />
       <dt className="w-28 shrink-0 text-stone-500">{label}</dt>
       <dd className="min-w-0">{children}</dd>
+    </div>
+  )
+}
+
+function SummaryRow({ Icon, label, name, date }) {
+  return (
+    <div className="flex gap-3">
+      <Icon className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
+      <div>
+        <p>
+          <span className="font-medium">{label}</span>
+          <span className="text-stone-500"> by {name}</span>
+        </p>
+        <p className="text-xs text-stone-400">{formatDate(date)}</p>
+      </div>
     </div>
   )
 }
@@ -108,42 +124,51 @@ function InquiryDetailPage() {
 
   return (
     <AppLayout>
-      <Link to="/" className="text-sm text-brand-700 hover:underline">
-        ← Back to inquiries
-      </Link>
-
-      {loading && <p className="mt-4 text-stone-500">Loading inquiry...</p>}
-
-      {!loading && notFound && (
-        <div className="card mx-auto mt-6 max-w-md text-center">
-          <h2 className="text-lg font-semibold">Inquiry not found</h2>
-          <p className="mt-1 text-sm text-stone-500">
-            It may not exist, or you don't have access to it.
-          </p>
-          <Link to="/" className="btn-primary mt-4">
-            Go to inquiries
+      {/* Big screens: the page fits the window (4rem = main's top + bottom padding), only the panels scroll */}
+      <div className="lg:flex lg:h-[calc(100vh-4rem)] lg:min-h-[32rem] lg:flex-col">
+        <div className="mb-6 flex shrink-0 items-center gap-4">
+          <Link
+            to="/"
+            aria-label="Back to inquiries"
+            title="Back to inquiries"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-brand-700 shadow-sm transition-colors hover:bg-brand-50"
+          >
+            <ArrowLeftIcon className="h-5 w-5" />
           </Link>
+          <div className="border-l border-stone-200 pl-4">
+            <h2 className="text-2xl font-semibold">Inquiry details</h2>
+            <p className="text-sm text-stone-500">
+              View the inquiry and move it through its lifecycle
+            </p>
+          </div>
         </div>
-      )}
 
-      {!loading && loadError && !notFound && (
-        <div role="alert" className="alert-error mt-4 flex items-center justify-between gap-4">
-          <span>Could not load the inquiry: {loadError.message}</span>
-          <button className="btn-secondary" onClick={handleReload}>
-            Try again
-          </button>
-        </div>
-      )}
+        {loading && <p className="text-stone-500">Loading inquiry...</p>}
 
-      {!loading && inquiry && (
-        <>
-          <h2 className="mt-2 text-2xl font-semibold">Inquiry details</h2>
-          <p className="mb-6 text-sm text-stone-500">
-            View the inquiry and move it through its lifecycle
-          </p>
+        {!loading && notFound && (
+          <div className="card mx-auto max-w-md text-center">
+            <h2 className="text-lg font-semibold">Inquiry not found</h2>
+            <p className="mt-1 text-sm text-stone-500">
+              It may not exist, or you don't have access to it.
+            </p>
+            <Link to="/" className="btn-primary mt-4">
+              Go to inquiries
+            </Link>
+          </div>
+        )}
 
-          <div className="grid gap-4 lg:grid-cols-3">
-            <div className="space-y-4 lg:col-span-2">
+        {!loading && loadError && !notFound && (
+          <div role="alert" className="alert-error flex items-center justify-between gap-4">
+            <span>Could not load the inquiry: {loadError.message}</span>
+            <button className="btn-secondary" onClick={handleReload}>
+              Try again
+            </button>
+          </div>
+        )}
+
+        {!loading && inquiry && (
+          <div className="grid gap-4 lg:min-h-0 lg:flex-1 lg:grid-cols-3 lg:grid-rows-[minmax(0,1fr)]">
+            <div className="space-y-4 lg:col-span-2 lg:overflow-y-auto">
               <section className="card">
                 <div className="flex flex-wrap items-start gap-4">
                   <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
@@ -185,14 +210,6 @@ function InquiryDetailPage() {
                       '—'
                     )}
                   </InfoRow>
-                  <InfoRow Icon={CalendarIcon} label="Created">
-                    {inquiry.created_by_name}
-                    <span className="text-stone-400"> · {formatDate(inquiry.created_at)}</span>
-                  </InfoRow>
-                  <InfoRow Icon={ClockIcon} label="Last updated">
-                    {inquiry.updated_by_name}
-                    <span className="text-stone-400"> · {formatDate(inquiry.updated_at)}</span>
-                  </InfoRow>
                 </dl>
               </section>
 
@@ -202,8 +219,8 @@ function InquiryDetailPage() {
               </section>
             </div>
 
-            <div className="space-y-4">
-              <section className="card">
+            <div className="space-y-4 lg:flex lg:min-h-0 lg:flex-col">
+              <section className="card lg:shrink-0">
                 <SectionTitle>Update status</SectionTitle>
                 <p className="mb-3 text-sm text-stone-500">Next allowed step:</p>
 
@@ -238,14 +255,30 @@ function InquiryDetailPage() {
                 )}
               </section>
 
-              <section className="card">
+              <section className="card lg:flex lg:min-h-0 lg:flex-col">
                 <SectionTitle>Activity</SectionTitle>
-                <ActivityTimeline history={inquiry.history} />
+                <div className="mb-4 shrink-0 space-y-3 rounded-lg bg-brand-50 p-3 text-sm">
+                  <SummaryRow
+                    Icon={CalendarIcon}
+                    label="Created"
+                    name={inquiry.created_by_name}
+                    date={inquiry.created_at}
+                  />
+                  <SummaryRow
+                    Icon={ClockIcon}
+                    label="Last updated"
+                    name={inquiry.updated_by_name}
+                    date={inquiry.updated_at}
+                  />
+                </div>
+                <div className="max-h-56 overflow-y-auto border-t border-stone-100 pt-4 pr-2 lg:max-h-none lg:min-h-0">
+                  <ActivityTimeline history={inquiry.history} />
+                </div>
               </section>
             </div>
           </div>
-        </>
-      )}
+        )}
+      </div>
     </AppLayout>
   )
 }
