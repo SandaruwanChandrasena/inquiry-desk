@@ -15,10 +15,13 @@ Every create and status change is saved with who did it and when.
 > Built for the **Coffee Ninja Full-Stack Intern** assessment.
 > Design choices, trade-offs and AI use are in **[DECISIONS.md](DECISIONS.md)**.
 
+🎥 **Demo video (under 5 min):** https://youtu.be/ywdBTihYDFE
+
 ![Inquiry list](docs/screenshots/inquiry-list.png)
 
 ## 📑 Contents
 
+- [Demo video](https://youtu.be/ywdBTihYDFE)
 - [Screenshots](#-screenshots)
 - [Tech stack](#-tech-stack)
 - [Setup](#-setup)
